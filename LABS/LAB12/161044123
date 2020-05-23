@@ -1,0 +1,70 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct{
+	int limit;
+	int current_size;
+	int value;
+}Dyn_arr;
+
+void init(Dyn_arr *arr);
+void add_to_last(Dyn_arr *arr,int input_value);
+void insert_after(Dyn_arr *arr,int index,int input_value);
+
+int main(){
+	
+	Dyn_arr*arraypointer = (Dyn_arr*)malloc( 5* sizeof(Dyn_arr));		
+	
+	int i;
+	init(arraypointer);
+	
+	for (int i = 1; i <= 15; ++i){
+		
+		add_to_last(arraypointer,i);
+		printf("%d\n",arraypointer[i].value);
+	}
+	free(arraypointer);
+	return 0;
+}
+void init(Dyn_arr *arr){
+
+	int i;
+	arr->current_size = arr->limit;
+
+	for (i = 0; i < arr->limit;i++){
+		arr[i].value = 0;
+	}
+}
+void add_to_last(Dyn_arr *arr,int input_value){
+
+	int i = 0,index = 0,j = 0;
+	int buffer = arr->limit+ 5;
+	int extended_arr[buffer];
+
+	Dyn_arr *temp;
+    
+    while(arr[i].value!=0){
+		i++;
+		index++;
+	}
+
+	if (arr[i].value == 0)
+		arr[i].value = input_value;
+	else{
+
+		arr->current_size = arr->limit+5;
+		for (j = 0; j < buffer; ++j){
+			extended_arr[j]= arr[j].value;	
+		}
+		extended_arr[j+1] = input_value;
+		
+	}
+	
+	temp = (Dyn_arr*)malloc(buffer * sizeof(Dyn_arr));
+	
+	for (int i = 0; i < buffer; ++i){
+		temp[i].value =  extended_arr[i];
+	}
+	arr = temp;
+	free(temp);
+}

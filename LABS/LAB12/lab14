@@ -1,0 +1,34 @@
+#include<stdio.h>
+#include<stdlib.h>
+typedef struct node{
+	
+	int val;
+	struct node* next;
+}node_t;
+
+node_t* root = NULL;
+int main(){
+
+	printf("input list:");
+	return 0;
+}
+void add_to_end(void){
+
+	node_t* temp = (node_t*)mallocO(sizeof(node_t));
+	temp->next = NULL;
+	
+	printf("enter data:");
+	scanf("%d",&temp->data);
+
+	if (root==NULL){
+		root = temp;
+	}
+	else{
+		
+		node_t* test;
+		while(test->next!=NULL){
+			test = test->next;
+		}
+		test = temp;
+	}
+}

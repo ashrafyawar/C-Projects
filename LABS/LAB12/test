@@ -1,0 +1,91 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct vector{
+	int size;
+	int capacity;
+	int *data;
+} vector;
+
+void initialize(vector *a);
+void add_to_last(vector *a, int val);
+void insert_after(vector *a, int index, int val);
+
+void reallocate(vector *a);
+void print(vector *a);
+
+int main(){
+	
+	vector container;
+	initialize(&container);
+	
+	for (int i = 0; i < 3; ++i) 
+		add_to_last(&container, i);
+	insert_after(&container, 1, 999);
+	insert_after(&container, 2, 999);
+	add_to_last(&container, 998);
+	int ind = 6;
+	for (int i = 20; i < 25; ++i)
+		insert_after(&container, ind++, i);
+	print(&container);
+}
+
+
+void initialize(vector *a) {
+	a->size = 0;
+	a->capacity = 0;
+	a->data = (int *) malloc(sizeof(int) * 5);
+}
+
+
+void print(vector *a) {
+	for (int i = 0; i < a->size; ++i) {
+		if (i && !(i % 20))
+			printf("\n");
+		printf("%3d ", a->data[i]);
+	}	
+	printf("\n");
+}
+
+
+void add_to_last(vector *a, int val) {
+	if (a->size == a->capacity) 
+		reallocate(a);
+	a->data[a->size++] = val;
+}
+
+
+void insert_after(vector *a, int index, int val) {
+	if (index < 0 && index >= a->size) {
+		printf("uygun olmayan index!!\n");
+		return ;
+	}
+	if (a->size == a->capacity) 
+		reallocate(a);
+	if (index >= a->size) {
+		a->data[a->size++] = val;
+		return ;
+	}
+	int nextItemsSize = a->size - index;
+	int *nextItems = (int *) malloc(sizeof(int) * nextItemsSize);
+	int indexTemp = index;
+	for (int i = 0; i < a->size - index; ++i) {
+		nextItems[i] = a->data[indexTemp++];
+	}
+	a->data[index++] = val;
+	a->size++;
+	for (int i = 0; i < nextItemsSize; ++i) {
+		a->data[index++] = nextItems[i];
+	}
+	free(nextItems); 
+}
+
+
+void reallocate(vector *a) {
+	a->capacity += 5;
+	int *backup = (int *) malloc(sizeof(int) * a->capacity);
+	for (int i = 0; i < a->capacity; ++i)
+		backup[i] = a->data[i];
+	free(a->data);
+	a->data = backup;
+}
