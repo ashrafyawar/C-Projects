@@ -1,0 +1,16 @@
+#include <stdio.h>
+int main(){
+
+	union student{
+		int roll_no;
+		char roll_name[50];
+		int roll_age;
+		int stu_address;
+	};
+
+	union student my_list[5];
+	printf("%d\n",my_list[4].roll_age);
+
+	return 0;
+}
+void print_names(){}

@@ -1,0 +1,67 @@
+#include <stdio.h>
+int main(){
+	
+	double mid,fin,q,average,reslut,q1,q2,m,f,total_q1_q2,average_q1_q1,sonuc;
+	double q1_averge,q2_average,mid_average,final_average;
+	char ch;
+	int counter;
+
+	typedef struct{
+		char name[50];
+		int quiz1;
+		int quiz2;
+		int midterm;
+		int final;
+	}student;
+	
+	student statistic;
+	
+	do{
+		
+		printf("Enter Strudent's Name\n");
+		scanf("%s",(statistic.name));
+		printf("Enter Strudent's grade for Quiz#1\n");
+		scanf("%d",&(statistic.quiz1));
+		printf("Enter Strudent's grade for Quiz#2\n");
+		scanf("%d",&(statistic.quiz2));
+		printf("Enter Strudent's for Midterm\n");
+		scanf("%d",&(statistic.midterm));
+		printf("Enter Strudent's for Final \n");
+		scanf("%d",&(statistic.final));
+
+		fin = statistic.final / 2.0;
+
+		mid = statistic.midterm / 4.0;
+		
+		total_q1_q2 = ((statistic.quiz1 * 10) + (statistic.quiz2 * 10));
+		
+		average_q1_q1 = total_q1_q2 / 2;
+		q = average_q1_q1 / 4;
+		sonuc = fin + mid + q; 
+		
+		printf("%s's numeric score for the entire course is %lf\n",statistic.name,sonuc);
+		counter++;
+		
+		q1 = q1 + statistic.quiz1;
+		q2 = q2 + statistic.quiz2;
+		m = m + statistic.midterm;
+		f = f + statistic.final;
+		
+		printf("do you want to cointinue!! press y to cointinue and n to to not to cointinue!!\n");
+		scanf(" %c",&ch);
+
+	}while(ch!='n'&& ch!='N');
+	
+	q1_averge = q1 / counter;
+	q2_average = q2 / counter;
+	mid_average = m / counter;
+	final_average = f / counter;
+	
+	printf("the class statistic : \n");
+	printf("the average of the quiz1 is %lf\n",q1_averge);
+	printf("the average of the quiz2 is %lf\n",q2_average);
+	printf("the average of the midterm is %lf\n",mid_average);
+	printf("the average of the final is %lf\n",final_average);
+
+	return 0;
+}

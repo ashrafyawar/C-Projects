@@ -1,0 +1,37 @@
+#include <stdio.h>
+int recursive(int number);
+void recursive_print(int number);
+
+int main(){
+
+	int n;
+	printf("Enter n = \n");
+	scanf("%d",&n);
+	recursive_print(n);
+	
+	return 0;
+}
+
+int recursive(int number){
+
+	int result;
+	
+	if (number==1)
+		return 3;
+	else if (number==2)
+		return 5;
+	
+	else{
+		if (number % 2!=0)
+			return ((recursive(number-1))-(recursive(number-2)));
+		else if (number % 2 == 0)
+			return (recursive(number-1)+recursive(number-2));
+	}
+
+}
+void recursive_print(int number){
+	
+	int i;
+	for (i = 1; i <=number; ++i)
+		printf("f(%d) = %d\n",i,recursive(i));
+}
