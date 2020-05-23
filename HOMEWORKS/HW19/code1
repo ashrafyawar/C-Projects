@@ -1,0 +1,126 @@
+#include<stdio.h>
+#define MATRIX_SIZE 514//desired array was 512x512 but i used 514x514 so that assuming the borders as water and mark them as water while tracing it and our coordenate finding starts from 1,1 because 0,0 is border in this case
+
+void fill_the_terrain(char terrain[][MATRIX_SIZE],FILE *inp);//function used to fill the terrain named structure array to be evaluated.
+int trace_terrain(char terrain[][MATRIX_SIZE]);//this function trace every cell of array by it's indecators.
+void find_island(char terrain[][MATRIX_SIZE],int row,int column);//function keeps track of a given cell and indicates the result.
+void write_to_file(FILE *output,char terrain[][MATRIX_SIZE],int count);//function to write into output file after evaluation finished.
+
+int main(){
+  
+ 	FILE *inp,*outp;
+  	int islands = 0;
+  	char terrain[MATRIX_SIZE][MATRIX_SIZE];//2d array 514x514 
+
+   	inp = fopen("input.txt","r");//file to be read from 
+   	outp = fopen("output.txt","w");//file to be write into
+  	
+ 	fill_the_terrain(terrain,inp);//function calling
+ 	
+	islands = trace_terrain(terrain);//returns the count of inslands.
+ 	fprintf(outp,"%d",islands);//print the islands into file
+ 	
+ 	if (islands != 0){//used to avoid printing extra newline at the end of file
+ 		
+ 		fprintf(outp,"\n");
+ 	}
+ 	write_to_file(outp,terrain,islands);//function to write into output file after evaluation finished.*/
+
+	fclose(inp);
+  	fclose(outp);
+ 	
+ 	return 0;
+}
+int trace_terrain(char terrain[][MATRIX_SIZE]){//this function traces the whole array and markes the visited values and finds the islands after calling some other functins inside it
+
+	int i,j,counter = 0;
+
+	for (i = 0; i < MATRIX_SIZE-1; ++i){
+		
+		for (j = 0; j < MATRIX_SIZE-1; ++j){
+			
+			if (terrain[i][j] != 'v' && terrain[i][j] != 'r' && terrain[i][j] != 'w'){//if the cell didnt visited yet or it is not water.
+				
+				find_island(terrain,i,j);//trace the hole related cells to it.
+				
+				terrain[i][j] = 'v';//mark it as visited
+				counter++;//increment island
+			}
+		}
+	}
+	return counter;//return the count of island.
+}
+void find_island(char terrain[][MATRIX_SIZE],int row,int column){//function's task expained above >>> 
+
+	if (terrain[row][column] == 'r' || terrain[row][column] == 'v'|| terrain[row][column] == 'w'){//base condition to terminate the function
+		
+		return;
+	}
+	else{//else keep track of the particular cell.
+		
+		terrain[row][column] = 'r';//marked as visited
+		
+		find_island(terrain,row,column+1);//trace the right side
+		find_island(terrain,row,column-1);//trace the left side
+		find_island(terrain,row+1,column);//trace the down ward
+		find_island(terrain,row-1,column);//trace the up ward
+		return;
+	}
+}
+void fill_the_terrain(char terrain[][MATRIX_SIZE],FILE *inp){//this functions task is to fill the array in a deisred format 
+
+	int i,j,temp,water_level;
+
+	fscanf(inp,"%d",&water_level);//water level value
+
+	for (i = 0; i < MATRIX_SIZE; ++i){
+	   
+	    for (j = 0; j < MATRIX_SIZE; ++j){
+			
+			/* the bellow if statment simply check for the borders of the array since we assumed that our array is surrended by the water and i did the implimentaion according to that*/
+		    if (i == 0|| (i == 0 && j != 0) || (i != 0 && j == 0) || (i == (MATRIX_SIZE-1) && j == 0) || (i == (MATRIX_SIZE-1) && j !=0)||(j == (MATRIX_SIZE-1))){//condition to avoid preceding the border of the array assuming that array is coverrd by water.
+		    //we are at  the very first cell or firts cell's all colums or last or first cclumms all rows or last colums all row or last rows colums the marked as water
+	          	
+	          	terrain[i][j] = 'w';//set the desired cells as water .
+		    }
+	    	else{
+	    		
+	    		fscanf(inp,"%d",&temp);
+	     		
+	     		if (temp > water_level){//above water
+	      			
+	      			terrain[i][j] = 'n';//not visited yet 
+
+	     		}
+	      		else if(water_level > temp || water_level == temp){//bellow water.
+
+	          		terrain[i][j] = 'w';//also marked as water if it is bellow water level
+
+	      		}
+	    	}
+		}
+	}
+}
+void write_to_file(FILE *output,char terrain[][MATRIX_SIZE],int count){//function prints the structed array after evaluation into output file.
+
+	int i,j,temp1,temp2;
+	
+	for (i = 0; i < MATRIX_SIZE-1; ++i){
+		
+		for (j = 0; j < MATRIX_SIZE-1; ++j){
+		
+			if (terrain[i][j] == 'v'){//condition to print the  coordenates into file.		
+				
+				temp1 = i;--temp1;//used to print the coordenate correctly 
+				temp2  = j;--temp2;//used to print the coordeante coorectly 
+				
+				fprintf(output,"%d %d",temp1,temp2);//write it to function.
+				--count;
+				if (count!=0){//condition ot avoid printing ectra space at the end
+					
+					fprintf(output,"\n");
+				}
+			}
+		}
+	}	
+}

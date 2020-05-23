@@ -1,0 +1,533 @@
+/*#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include <time.h> 
+#define MATRIX_SIZE 21
+#define UPPER 127
+#define LOWER 0
+struct terrain_arr{
+	
+	int value;
+	int visited;
+};
+void fill_the_terrain(struct terrain_arr terrain[][MATRIX_SIZE],FILE *inp);//function used to fill the terrain named structue array to be evaluated.
+int trace_terrain(struct terrain_arr terrain[][MATRIX_SIZE]);
+void find_island(struct terrain_arr terrain[][MATRIX_SIZE],int row,int column);
+void write_to_file(FILE *output,struct terrain_arr terrain[][MATRIX_SIZE],int islands);//function to write into output file after evaluation finished.
+
+int main(){
+  
+ 	FILE *inp,*outp,*test;
+
+   	inp = fopen("input.txt","r");
+   	//inp = fopen("input.txt","w");
+   	outp = fopen("output.txt","w");
+  
+  	int islands = 0,i = 0,j = 0;
+  	struct terrain_arr terrain[MATRIX_SIZE][MATRIX_SIZE];
+	/*srand(time(0));
+	for (int i = 0; i < MATRIX_SIZE-2; ++i){
+	  
+	  	for (int j = 0; j < MATRIX_SIZE-2 ; ++j){
+	  		
+	  		fprintf(inp,"%d ",(rand() % (UPPER - LOWER + 1)) + LOWER);
+
+	  	}
+	  	fprintf(inp,"\n");
+ 	 }*/
+ 	
+ 	/*fill_the_terrain(terrain,inp);
+ 	
+ 	for (i = 0; i < MATRIX_SIZE; ++i){
+  
+    	for (j = 0; j < MATRIX_SIZE; ++j){
+    	
+    		if (terrain[i][j].value == 0){
+    		
+    			printf("x");
+    		}
+    		else{
+    	
+    			printf("|");
+    		}
+    	}
+    	printf("\n");
+  	}
+
+	islands = trace_terrain(terrain);
+ 	write_to_file(outp,terrain,islands);//function to write into output file after evaluation finished.
+
+	fclose(inp);
+  	fclose(outp);
+  return 0;
+}
+int trace_terrain(struct terrain_arr terrain[][MATRIX_SIZE]){
+
+	int i,j,counter = 0;
+
+	for (i = 0; i < MATRIX_SIZE-1; ++i){
+		
+		for (j = 0; j < MATRIX_SIZE-1; ++j){
+			
+			if (terrain[i][j].value != 1){
+				
+				terrain[i][j].visited = 1;
+				
+				find_island(terrain,i,j);
+				counter++;
+			}
+		}
+	}
+	return counter;
+}
+void find_island(struct terrain_arr terrain[][MATRIX_SIZE],int row,int column){
+
+	if (terrain[row][column].value == 1){
+		
+		return;
+	}
+	else{
+		
+		terrain[row][column].value = 1;
+		
+		find_island(terrain,row,column+1);
+		find_island(terrain,row,column-1);
+		find_island(terrain,row+1,column);
+		find_island(terrain,row-1,column);
+		return;
+	}
+}
+void fill_the_terrain(struct terrain_arr terrain[][MATRIX_SIZE],FILE *inp){
+
+	int i,j,temp,water_level;
+
+	fscanf(inp,"%d",&water_level);
+
+	for (i = 0; i < MATRIX_SIZE; ++i){
+	   
+	    for (j = 0; j < MATRIX_SIZE; ++j){
+
+		    if ((i == 0 && j == 0) || (i == 0 && j != 0) || (i != 0 && j == 0) || (i == (MATRIX_SIZE-1) && j == 0) || (i == (MATRIX_SIZE-1) && j !=0)||(j == (MATRIX_SIZE-1))){
+		    
+	          	terrain[i][j].value = 1;//set the desired cells as visired or in other words it is a water lower than water level .
+		    }
+	    	else{
+	    		
+	    		fscanf(inp,"%d",&temp);
+	     		if (temp > water_level){//above water
+	      			
+	      			terrain[i][j].visited = 0; 
+	          		terrain[i][j].value = 0;
+	     		}
+	      		else if(water_level > temp || water_level == temp){//bellow water.
+	          
+	          		terrain[i][j].visited = 0;
+	          		terrain[i][j].value = 1;
+	      		}
+	    	}
+		}
+	}
+}
+void write_to_file(FILE *output,struct terrain_arr terrain[][MATRIX_SIZE],int islands){//function prints the structed array after evaluation into output file.
+
+	int i,j;
+
+	fprintf(output,"%d\n",islands);
+	
+	for (i = 0; i < MATRIX_SIZE; ++i){
+		
+		for (j = 0; j < MATRIX_SIZE; ++j){
+		
+			if (terrain[i][j].visited == 1){
+				
+				fprintf(output,"%d %d\n",i,j );
+			}
+		}
+	}	
+}
+
+
+if(i == 0 && j == 0)//check for first row and first column >>>
+			{
+
+				if(terrain[i][j].value == 1 && terrain[i][j+1].value == 2 && terrain[i+1][j].value == 2){
+				  
+				  	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    terrain[i][j].visited = 1;//visited 
+				    counter++;
+				    //printf("izjz2counter[%d]",counter);
+				    //printf("at(%d,%d) ",i,j);
+				    first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.
+					is_island1 = 0,is_island2 = 0;
+				}
+				if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+				   
+				  if(terrain[i][j+1].visited == 0 && terrain[i][j+1].value == 1){
+
+				    is_island1	= traverce_to_right(terrain,i,j);
+				  }
+				  if(terrain[i+1][j].visited == 0 && terrain[i+1][j].value == 1){
+				  
+				    is_island2 = traverce_to_down(terrain,i,j);
+				  }
+				 
+				  terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j+1].value == 2 && terrain[i][j].value == 1){
+					
+					is_island1 = 1;
+				}
+				if (terrain[i+1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;
+				}
+				if (is_island1 == 1 && is_island2 == 1 && first_con == 1){
+					
+					terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    //printf("izjz1counter[%d]",counter );
+				    //printf("at(%d,%d) ",i,j);
+				}
+			}
+			else if(i == (MATRIX_SIZE-1) && j == (MATRIX_SIZE-1))//condition 9,9 cordenates.>>>
+			{
+
+			    if(terrain[i][j].value == 1 && terrain[i][j-1].value == 2 && terrain[i-1][j].value == 2){
+			  
+			  		terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    
+				    terrain[i][j].visited = 1;//visited 
+				   // printf("counter[%d]",counter);
+				   // printf("at(%d,%d) ",i,j);
+					
+					is_island1 = 0,is_island2 = 0;
+					first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.	  
+			    }
+			    if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+			  
+					if(terrain[i][j-1].visited == 0 && terrain[i][j-1].value == 1){
+
+				   		is_island1 = traverce_to_left(terrain,i,j); 
+					}
+					if (terrain[i-1][j].visited == 0 && terrain[i-1][j].value == 1){
+				    
+				  		is_island2 = traverce_to_up(terrain,i,j);
+				  	}
+				  	terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j-1].value == 2 && terrain[i][j].value == 1){
+					is_island1 = 1;
+				}
+				if (terrain[i-1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;
+				}
+			    if (is_island1 == 1 && is_island2 == 1 && first_con == 1){
+				
+					terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+					
+			  	 	//printf("counter[%d]",counter );
+				   // printf("at(%d,%d) ",i,j);
+				}
+			}
+			else if(i == 0 && j != (MATRIX_SIZE-1))//condition for being i sezro and j not zero or the first row's columns >>>
+			{
+
+			    if(terrain[i][j].value == 1 && terrain[i][j+1].value == 2 && terrain[i][j-1].value == 2 && terrain[i+1][j].value == 2){
+			  
+			  		terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    terrain[i][j].visited = 1;//visited 
+				   
+				   //printf("izjnz2[%d][%d] ",i,j);
+
+				   //	printf("counter[%d]",counter);
+				   // printf("at(%d,%d) ",i,j);
+				    is_island1 = 0,is_island2 = 0,is_island3 = 0;
+				    first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.
+			  	}
+			 	if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+
+				    if(terrain[i][j+1].visited == 0 && terrain[i][j+1].value == 1){
+				    
+				        is_island1 = traverce_to_right(terrain,i,j);
+				    }
+				    if(terrain[i][j-1].visited == 0 && terrain[i][j-1].value == 1){
+
+				        is_island2 = traverce_to_left(terrain,i,j); 
+				    }
+				    if(terrain[i+1][j].visited == 0 && terrain[i+1][j].value == 1){
+				      
+				        is_island3 = traverce_to_down(terrain,i,j);
+				    }
+			        terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j+1].value == 2 && terrain[i][j].value == 1){
+					is_island1 = 1;
+				}
+				if (terrain[i][j-1].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;
+				}
+				if (terrain[i+1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island3 = 1;		
+				}		
+				if(is_island1 == 1 && is_island2 == 1 && is_island3 == 1 && first_con == 1){
+					
+					terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+			     	//printf("izjnz1[%d][%d] ",i,j);
+			     	//printf("counter[%d]",counter );
+			     	//printf("at(%d,%d) ",i,j);
+					
+				}
+			}
+			else if(i!= (MATRIX_SIZE-1) && j == 0)
+			{
+
+				if(terrain[i][j].value == 1 && terrain[i][j+1].value == 2 && terrain[i+1][j].value == 2 && terrain[i-1][j].value == 2){
+				  
+					terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.			  
+				    terrain[i][j].visited = 1;//visited 
+				    
+				   // printf("inzjz2counter[%d]",counter);
+				    //printf("at(%d,%d) ",i,j);
+				    first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.
+				    is_island1 = 0,is_island2 = 0,is_island3 = 0;
+				}
+			    if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+			  
+					if(terrain[i][j+1].visited == 0 && terrain[i][j+1].value == 1){
+
+				    	is_island1 = traverce_to_right(terrain,i,j);
+				  	}
+				  	if(terrain[i+1][j].visited == 0 && terrain[i+1][j].value == 1){
+				  
+				   	 	is_island2 = traverce_to_down(terrain,i,j);
+				  	}
+				  	if (terrain[i-1][j].visited == 0 && terrain[i-1][j].value == 1){
+				    
+				   		is_island3 = traverce_to_up(terrain,i,j);
+				 	 }
+				 	 terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j+1].value == 2 && terrain[i][j].value == 1){
+					is_island1 = 1;
+				}
+				if (terrain[i+1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;
+				}
+				if (terrain[i-1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island3 = 1;		
+				}
+				if (is_island1 == 1 && is_island2 == 1 && is_island3 == 1 && first_con == 1){
+					
+					terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.   	
+			    	//printf("inzjz1counter[%d]",counter);
+			     	//printf("%d,%d ",i,j);
+				}
+			}
+			else if(i == (MATRIX_SIZE-1)&& j == 0)//condition to check right and up wards starting from coordentes (511,0)
+			{
+				
+				if(terrain[i][j].value == 1 && terrain[i][j+1].value == 2 && terrain[i-1][j].value == 2){
+			  			
+			  		terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    terrain[i][j].visited = 1;//visited 
+				    
+				   // printf("ada[%d][%d]",i,j);
+				   // printf("counter[%d]",counter);
+				   // printf("%d,%d ",i,j);
+				    first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.
+				    is_island1 = 0,is_island2 = 0;
+
+				}
+				if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+				  
+					if(terrain[i][j+1].visited == 0 && terrain[i][j+1].value == 1){
+
+					   	is_island1 = traverce_to_right(terrain,i,j);
+					}
+					if (terrain[i-1][j].visited == 0 && terrain[i-1][j].value == 1){
+					    
+					   	is_island2 = traverce_to_up(terrain,i,j);
+					}
+					terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j+1].value == 2 && terrain[i][j].value == 1){
+					
+					is_island1 = 1;
+				}
+				if (terrain[i-1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;
+				}
+				if (is_island1 == 1 && is_island2 == 1 && first_con == 1){
+				 
+				 	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    //printf("i9j0counter[%d]",counter );
+				   // printf("at(%d,%d) ",i,j);
+				}
+			}
+			else if(i == (MATRIX_SIZE-1) && j !=(MATRIX_SIZE-1))//condition to become 
+			{
+
+				if(terrain[i][j].value == 1 && terrain[i][j+1].value == 2 && terrain[i][j-1].value == 2 && terrain[i-1][j].value == 2){
+				  
+				  	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    terrain[i][j].visited = 1;//visited 
+				    
+				   // printf("ada[%d][%d]",i,j);
+				   // printf("counter[%d]",counter);
+				   // printf("%d,%d ",i,j);
+				    first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.
+				    is_island1 = 0,is_island2 = 0,is_island3 = 0;
+				    go = 0;
+				    
+				  }
+				if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+				  
+					if(terrain[i][j+1].visited == 0 && terrain[i][j+1].value == 1){
+
+					   	is_island1 = traverce_to_right(terrain,i,j);
+					}
+					if(terrain[i][j-1].visited == 0 && terrain[i][j-1].value == 1){
+
+					   	is_island2 = traverce_to_left(terrain,i,j); 
+					}
+					if (terrain[i-1][j].visited == 0 && terrain[i-1][j].value == 1){
+					    
+					   	is_island3 = traverce_to_up(terrain,i,j);
+					}
+					terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j+1].value == 2 && terrain[i][j].value == 1){
+					
+					is_island1 = 1;
+				}
+				if (terrain[i][j-1].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;
+				}
+				if (terrain[i-1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island3 = 1;
+				}
+				if (is_island1 == 1 && is_island2 == 1 && is_island3 == 1 && first_con == 1){
+				 	
+				 	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				   // printf("i9jn9counter[%d]",counter );
+				   // printf("at(%d,%d) ",i,j);
+					go = 0;
+				}
+
+			}
+			if (i == 0 && j == (MATRIX_SIZE-1))
+			{
+
+				if(terrain[i][j].value == 1 && terrain[i][j-1].value == 2 && terrain[i+1][j].value == 2){
+				  	
+				  	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    terrain[i][j].visited = 1;//visited 
+				    
+				   // printf("ada[%d][%d]",i,j);
+				   // printf("counter[%d]",counter);
+				  // printf("%d,%d ",i,j);
+				    first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.
+				    is_island1 = 0,is_island2 = 0;
+
+				  }
+				if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+				  
+					if(terrain[i][j-1].visited == 0 && terrain[i][j-1].value == 1){
+
+					   	is_island1 = traverce_to_left(terrain,i,j); 
+					}
+					if(terrain[i+1][j].visited == 0 && terrain[i+1][j].value == 1){
+					  
+				   	 	is_island2 = traverce_to_down(terrain,i,j);
+					}
+					terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j-1].value == 2 && terrain[i][j].value == 1){
+					
+					is_island1 = 1;
+				}
+				if (terrain[i+1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;		
+				}
+				if (is_island1 == 1 && is_island2 == 1 &&first_con == 1){
+				 	
+				 	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    //printf("i0j9counter[%d]",counter );
+				   // printf("at(%d,%d) ",i,j);
+				}
+			}
+			else if (i !=(MATRIX_SIZE-1) && j == (MATRIX_SIZE-1))//condition to be i varies and j remains (max-1)
+			{
+				
+				if(terrain[i][j].value == 1 && terrain[i][j-1].value == 2 && terrain[i+1][j].value == 2 && terrain[i-1][j].value == 2){
+				  	
+				  	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				    terrain[i][j].visited = 1;//visited 
+				    
+				   // printf("ada[%d][%d]",i,j);
+				   // printf("counter[%d]",counter);
+				   // printf("%d,%d ",i,j);
+				    first_con = 0;//it indecates that if the desired cell in the array is eampy so we need not to check for it's details.
+				    is_island1 = 0,is_island2 = 0,is_island3 = 0;
+
+				  }
+				if(terrain[i][j].visited == 0 && terrain[i][j].value == 1){//if not visited yet>>>
+				  
+					if(terrain[i][j-1].visited == 0 && terrain[i][j-1].value == 1){
+
+					   	is_island1 = traverce_to_left(terrain,i,j); 
+					}
+					if(terrain[i+1][j].visited == 0 && terrain[i+1][j].value == 1){
+					  
+				   	 	is_island2 = traverce_to_down(terrain,i,j);
+					}
+					if (terrain[i-1][j].visited == 0 && terrain[i-1][j].value == 1){
+					    
+					   	is_island3 = traverce_to_up(terrain,i,j);
+					}
+					terrain[i][j].visited = 1;
+				}
+				if (terrain[i][j-1].value == 2 && terrain[i][j].value == 1){
+					
+					is_island1 = 1;
+				}
+				if (terrain[i+1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island2 = 1;		
+				}
+				if (terrain[i-1][j].value == 2 && terrain[i][j].value == 1){
+					
+					is_island3 = 1;
+				}
+				if (is_island1 == 1 && is_island2 == 1 && is_island3 == 1 && first_con == 1){
+				 	
+				 	terrain[i][j].x_cor = i;//store the coordinatese into it's coresponding structure.
+				  	terrain[i][j].y_cor = j;//store the coordinatese into it's coresponding structure.
+				 	//printf("in0j9counter[%d]",counter );
+				   // printf("at(%d,%d) ",i,j);
+				}
+			}*/
+			//else

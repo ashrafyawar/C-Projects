@@ -1,0 +1,25 @@
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#define MATRIX_SIZE 512
+#define UPPER 127
+#define LOWER 0
+int main(){
+
+
+	FILE *inp = fopen("input.txt","w");
+  	srand(time(NULL)); 
+
+	for (int i = 0; i < MATRIX_SIZE; ++i)
+	{
+		for (int i = 0; i < MATRIX_SIZE; ++i)
+		{
+
+			int  temp = (rand() % (UPPER - LOWER + 1)) + LOWER;
+			fprintf(inp,"%d ",temp);
+		}
+		fprintf(inp,"\n");
+	}
+
+}
