@@ -1,0 +1,117 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include <time.h>
+#include<math.h>
+typedef union{
+
+	char student_num[50];
+	int social_num;
+
+}identifier;
+
+typedef struct{
+
+	identifier link_to_union;
+	int idtype;
+	char name[10];
+	char surename[10];
+	int midterm01;
+	int midterm02;
+	int final;
+
+}student;
+student *array;
+
+void create_student(student *student);
+void print(student *student);
+void calculate_grade(student *student);
+
+int main(){
+
+	int lenght = 0,number  = 0;
+	srand(time(NULL));
+
+	printf("Enter the lenght of the structed array >>>\n");
+	scanf("%d",&lenght);
+
+	
+	array = (student*)(malloc(lenght * sizeof(student)));
+	
+	do{
+		create_student(&array[number]);
+		print(&array[number]);
+		number++;
+
+	}while(number!=lenght);
+	
+	calculate_grade(array);
+
+	return 0;
+}
+void create_student(student *student){
+	
+	int number,i,social;
+	char string[50];
+	
+	student->idtype = rand() % 2;
+	
+	if (student->idtype == 1){
+		
+		social = rand() % 100000;
+		student->link_to_union.social_num  = social;
+	}
+	/*else if (student->idtype == 0)
+	{
+
+		scanf("%d%s%d",&string);		
+		sprintf(student->link_to_union.student_num,"%d%s%d",string)
+	}*/
+	
+	printf("Enter student Name >>\n");
+	scanf("%s",student->name);
+
+	printf("Enter the Surename >>>\n");
+	scanf("%s",student->surename);
+	
+	for ( i = 0; i < 3; i++){
+		
+		number = rand() % 100;
+		
+		if (i==0)
+			student->midterm01 = number;
+		
+		else if (i==1)
+			student->midterm02=number;
+		
+		else if (i==2)
+			student->final=number;
+	}
+}
+void print(student *student){
+
+	if (student->idtype == 1)
+		printf("student_id >>> %d\n",student->link_to_union.social_num);
+	/*else if (student->idtype == 1){}*/
+
+	printf("name >>> %s\n",student->name);
+	printf("surename >>>%s\n",student->surename);
+	printf("midterm01 >>> %d\n",student->midterm01 );
+	printf("midterm02 >>> %d\n",student->midterm02 );
+	printf("final_score >>> %d\n",student->final);
+
+}
+void calculate_grade(student *student){
+
+	double midterm01,midterm02,final,result;
+	
+	midterm01 = student->midterm01 /4;
+	
+	midterm02 = student->midterm01 /4;
+	
+	final = student->final/2;
+	
+	result = midterm01+midterm02+final;
+	
+	printf("the grade of the all student is %lf\n",result);
+}
