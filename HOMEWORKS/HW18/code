@@ -1,0 +1,435 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#define WORD_SIZE 10//max lenght of each word 
+#define MAX_SIZE_OF_LINE 100 //i make it 100 to avoid any overflow and seg_fault by assuming that input line's size will not preced 100 chars uncluding spaces and input chars 	
+struct node{
+	
+	char gate_type[WORD_SIZE];
+	char input_name1[WORD_SIZE];
+	char input_name2[WORD_SIZE];
+	char outp_name[WORD_SIZE];
+	
+	int input1;
+	int input2;
+	int output;
+	int former_out;
+
+	struct node *input1p;
+	struct node *input2p;
+};
+
+int get_line_count(FILE *inp,int *size);//function takes the inp file and and parses it and returns the count of lines in ciciut.txt file.
+void fill_input_array(FILE *inputf,int arr[],int size);//function takes input file and returns the filled array by it's each line .so that will be used in each iteration 
+void portion_lent(char *arr,int *lenght);//finds the lenght untill encounters white spaces.
+void fill_structp(char testarr[][MAX_SIZE_OF_LINE],int my_array[],int size,struct node **arrp,int line_size,int inp_elemnts_count);//function fills the pointer to structure array by certain inputs 
+void link_structs(struct node **p_to_structs,int inp_limit,int limit);//function links the array of structs by it's desired data >>>
+int evaluate_circiut(struct node *gates_p,int *keep_fomer_outp);//function calculates the linked circiut and sends the result to 
+
+
+int  main(){
+	
+	FILE *cir_p,*bol_p,*outp;
+	
+	int count = 0,input_lenght = 0,prev_former = 0;	
+	int creat_loc = 0,k = 0,result,i = 0;
+	
+	cir_p = fopen("circuit.txt","r");
+	bol_p = fopen("input.txt","r");
+	outp = fopen("output.txt","w");
+
+	input_lenght = get_line_count(cir_p,&count);//get the count of the lines in circiut file.
+
+	creat_loc = input_lenght + count;//alocation limit 	
+	int inputarray[input_lenght];//input array used down
+	int inputarray_keep[input_lenght];
+	
+	inputarray_keep[input_lenght] = '\0';
+	inputarray[input_lenght] = '\0';
+
+	struct node **gates_p = (struct node**)malloc(sizeof(struct node) * creat_loc);//allocate spaces for certain structure type pointers in  the heap.
+	gates_p[creat_loc] = NULL;
+	
+	cir_p = fopen("circuit.txt","r");//reopen the file again to be used .
+	
+	char *pointer = (char*)malloc(sizeof(char));
+	char keep_arr[count][MAX_SIZE_OF_LINE];
+	
+	while(!feof(cir_p)){//fill the array from the datas of circiut.txt so that we can avoid reopening it again and again.
+		
+		fscanf(cir_p,"%[^\n]\n",&keep_arr[i][0]);
+		i++;
+	}
+	i = 0;
+	while(!feof(bol_p)){//loop iterates till EOF which is input.txt in this case.
+
+		k = 0;
+		strcpy(pointer,keep_arr[count]);//copying the last line of array so that avoid any garbage values and bad effect of result .
+		
+		fill_input_array(bol_p,inputarray,input_lenght);//get the each line of input file in each iteration 
+		for (int man = 0; man < input_lenght; ++man){
+			inputarray_keep[man] = inputarray[man];
+		}
+
+		strcpy(keep_arr[count],pointer);
+		
+		fill_structp(keep_arr,inputarray,input_lenght,gates_p,count,input_lenght);//fill the structs from the circiut.txt with appropriate gates' details
+
+		while(k < input_lenght){//set the world INPUT to all of the input entities.
+		
+			strcpy(gates_p[k]->gate_type,"INPUT");
+			k++;
+		
+		}
+		k = 0;
+		while(k < creat_loc){
+			
+			if (0 == strcmp(gates_p[k]->gate_type,"FLIPFLOP"))
+			{
+			
+				gates_p[k]->former_out = prev_former;
+				break;
+			}
+			k++;
+		}
+
+		link_structs(gates_p,input_lenght,creat_loc);
+		result = evaluate_circiut(gates_p[creat_loc-1],&prev_former);
+		
+		fprintf(outp,"%d",result);
+		
+		if (!feof(bol_p)){//ignores do not printing the newline (extra newline a the end of the file while writing...)
+			fprintf(outp,"\n");
+		}
+	}
+
+	fclose(bol_p);
+	fclose(cir_p);
+	fclose(outp);
+	free(gates_p);	
+	
+	return 0;
+}
+void fill_input_array(FILE *inputf,int arr[],int size){//gets the input values and assigns it into array.
+
+	int i = 0;
+	
+	while(i < size){
+
+		fscanf(inputf,"%d",&arr[i]);
+		i++; 
+	}
+}
+void link_structs(struct node **p_to_structs,int inp_limit,int limit){//this function takes the pointer to structure type in which each pointer cell point to a corresponding struct and also limit size to be evaluated and links the each structure with it's corresponding one
+
+	int i = 0;
+	
+	while(inp_limit < limit){//iteratse till the end of array of pointer to structurs.
+			
+		if(0 == strcmp(p_to_structs[inp_limit]->gate_type,"OR")){//if it is and or or gate then do this >> 
+
+			i = 0;			
+			while(i < inp_limit){//input one finding...
+
+				if (0 == strcmp(p_to_structs[inp_limit]->input_name1,p_to_structs[i]->outp_name)){
+
+					p_to_structs[inp_limit]->input1p = p_to_structs[i];/*asdfasjhdflkjashdflkajshflkasj*/
+					break;
+				}
+				i++;
+			} 	
+			i = 0;
+			while(i < inp_limit){
+				
+				if (0 == strcmp(p_to_structs[inp_limit]->input_name2,p_to_structs[i]->outp_name)){
+
+					p_to_structs[inp_limit]->input2p = p_to_structs[i];/*asdfasjhdflkjashdflkajshflkasj*/
+					break;
+				}
+				i++;
+			}
+		}
+		else if( 0 == strcmp(p_to_structs[inp_limit]->gate_type,"AND")){
+			i = 0;			
+			while(i < inp_limit){//input one finding...
+
+				if (0 == strcmp(p_to_structs[inp_limit]->input_name1,p_to_structs[i]->outp_name)){
+
+					p_to_structs[inp_limit]->input1p = p_to_structs[i];/*asdfasjhdflkjashdflkajshflkasj*/
+					break;
+				}
+				i++;
+			} 	
+			i = 0;
+			while(i < inp_limit){
+				
+				if (0 == strcmp(p_to_structs[inp_limit]->input_name2,p_to_structs[i]->outp_name)){
+
+					p_to_structs[inp_limit]->input2p = p_to_structs[i];/*asdfasjhdflkjashdflkajshflkasj*/
+					break;
+				}
+				i++;
+			}
+		}
+		else if (0 == strcmp(p_to_structs[inp_limit]->gate_type,"NOT") ||0 == strcmp(p_to_structs[inp_limit]->gate_type,"FLIPFLOP")){//if it is flip or not gate then do this >>
+			i = 0;
+
+			while(i < inp_limit){//find the flipflop's and not's inputs...
+
+				if (0 == strcmp(p_to_structs[inp_limit]->input_name1,p_to_structs[i]->outp_name)){
+				
+					p_to_structs[inp_limit]->input1p = p_to_structs[i];
+				}
+				i++;
+			}//end of while
+		}//end of else
+		inp_limit = inp_limit+1;
+		i = 0;
+	}//end of outer loop
+}//end of function...
+void fill_structp(char testarr[][MAX_SIZE_OF_LINE],int my_array[],int size,struct node **arrp,int line_size,int inp_elemnts_count){
+
+	char first_line_name[WORD_SIZE];
+	char one_word[WORD_SIZE];
+	int one_value,i = 0,j = 1,input_vals = 0;
+	
+	int portion = 0,keep_portion = 0;//these two used to keep track of indexs in each line.
+
+	sscanf(testarr[0],"%s",first_line_name);//holds the word 'INPUT'	
+	portion_lent(testarr[i],&portion);//finds the lenght untill encounters white spaces.
+	keep_portion += portion;
+
+	while(i < inp_elemnts_count){//this fills the struct with inout line desired vals.
+
+		struct node *one_struct = (struct node*)malloc(sizeof(struct node));
+
+		(one_struct+i)->input1p = NULL;//nodes of the input line which must be null in this case...
+		(one_struct+i)->input2p = NULL;//nodes of the input line which must be null in this case...
+
+		strcpy((one_struct+i)->gate_type,"INPUT");//input gate name.
+				
+		sscanf(&testarr[0][keep_portion],"%s",one_word);//input strigns names.		
+		portion_lent(&testarr[0][keep_portion],&portion);//finds the lenght untill encounters white spaces.
+		keep_portion += portion;
+
+		strcpy((one_struct+i)->outp_name,one_word);
+		(one_struct+i)->output = my_array[i];
+		my_array[size] = '\0';
+	
+		*(arrp+i) = (one_struct+i);//copy the structure to main one .>> 
+		i++;	
+	}
+	while(j <= line_size){//fills the strcts with varous gates types >>> 
+		
+		keep_portion = 0,portion = 0;
+		struct node *one_struct = (struct node*)malloc(sizeof(struct node));		
+		
+		sscanf(testarr[j],"%s",first_line_name);
+		portion_lent(testarr[j],&portion);
+		keep_portion += portion;
+				
+		if (0 == strcmp(first_line_name,"AND")){//end gate to be filled
+			
+			(one_struct+i)->input1p = NULL;
+			(one_struct+i)->input2p = NULL;
+
+			strcpy((one_struct+i)->gate_type,first_line_name);//input gate name.
+			
+			sscanf(&testarr[j][keep_portion],"%s",one_word);
+			strcpy((one_struct+i)->outp_name,one_word);
+			
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->input_name1);
+			
+
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->input_name2);
+
+			*(arrp+i) = (one_struct+i);//copy the structure to main one .>> 
+
+		}
+		else if (0 == strcmp(first_line_name,"OR")){//condition ot or gate to be filled
+			
+			keep_portion = 0,portion = 0;
+			(one_struct+i)->input1p = NULL;
+			(one_struct+i)->input2p = NULL;
+
+			strcpy((one_struct+i)->gate_type,"OR");//input gate name.
+			
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+		
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->outp_name);
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->input_name1);
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+
+
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->input_name2);
+
+			*(arrp+i) = (one_struct+i);//copy the structure to main one .>> 
+
+		}
+		else if (0 == strcmp(first_line_name,"NOT")){//no gate to be filled
+			
+			keep_portion = 0,portion = 0;
+			
+			(one_struct+i)->input1p = NULL;
+			(one_struct+i)->input2p = NULL;
+
+			strcpy((one_struct+i)->gate_type,first_line_name);//input gate name.
+			
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+			
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->outp_name);
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->input_name1);
+		
+			*(arrp+i) = (one_struct+i);//copy the structure to main one .>> 
+
+		}
+		else if (0 == strcmp(first_line_name,"FLIPFLOP")){//flipflop gated to be filled.
+				
+			keep_portion = 0,portion = 0;
+			
+			(one_struct+i)->input1p = NULL;
+			(one_struct+i)->input2p = NULL;
+
+			strcpy((one_struct+i)->gate_type,first_line_name);//input gate name.
+			
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+			
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->outp_name);
+			portion_lent(&testarr[j][keep_portion],&portion);
+			keep_portion += portion;
+			
+			sscanf(&testarr[j][keep_portion],"%s",(one_struct+i)->input_name1);
+
+			*(arrp+i) = (one_struct+i);//copy the structure to main one .>>
+
+		}
+		i++;
+		j++;
+		free(one_struct);
+
+	}//end of whil loop
+
+}//end of fuunction.
+int  get_line_count(FILE *inp,int *size){//finds the number of lines in the given file.and also pars the first line inout line and finds the number of entities and returns the lenght.
+
+	char *line1 = (char*)malloc(sizeof(char));
+	char *line = (char*)malloc(sizeof(char));
+	
+	int i = 0,lenght,j = 0;
+	
+	fscanf(inp,"%s",line1);
+	fscanf(inp,"%[^\n]\n",line1);
+
+	lenght = strlen(line1);
+
+	char temp[lenght];
+	temp[lenght] = '\0';
+	strcpy(temp,line1);
+
+	while(temp[i]!='\0'){//parsing the  first line.
+
+		if (temp[i] == ' '){
+			j++;
+		}
+		i++;
+	}	
+	
+	while(!feof(inp))//parsing the circiut.txt file.
+	{
+
+		fscanf(inp,"%[^\n]\n",line1);
+		line = strtok(line1,"\n");
+		*size = *size+1;
+	
+	}
+	free(line1);
+	free(line);
+	return j;//returns the count of numbers of elments in first line 'INPUT' line
+}
+void portion_lent(char *arr,int *lenght){//finds the lenght untill encounters white spaces.
+
+	int i = 1;
+	
+	while(arr[i]!=' ' && arr[i]!='\n'){
+		
+		i++;
+	}
+	
+	*lenght = i;
+}
+int evaluate_circiut(struct node *gates_p,int *keep_fomer_outp){
+
+
+	int inp1,inp2;
+	if (gates_p->input1p == NULL && gates_p->input2p == NULL){// base case
+		return (gates_p->output);
+	}
+	else{//else we have check several conditions...
+
+		if (0 == strcmp(gates_p->gate_type,"AND")){
+			
+			inp1 = evaluate_circiut(gates_p->input1p,keep_fomer_outp);
+			inp2 = evaluate_circiut(gates_p->input2p,keep_fomer_outp);
+		}
+		else if (0 == strcmp(gates_p->gate_type,"OR")){
+			
+			inp1 = evaluate_circiut(gates_p->input1p,keep_fomer_outp);
+			inp2 = evaluate_circiut(gates_p->input2p,keep_fomer_outp);
+		}
+	 	else if (0 == strcmp(gates_p->gate_type,"NOT")){
+			
+			inp1 = evaluate_circiut(gates_p->input1p,keep_fomer_outp);
+		}
+		else if ( 0 == strcmp(gates_p->gate_type,"FLIPFLOP")){
+
+			inp1 = evaluate_circiut(gates_p->input1p,keep_fomer_outp);
+		}
+	}
+	/*conditions to be manipulated and returned.*/	
+	if (0 == strcmp(gates_p->gate_type,"AND")){
+
+		return(inp1 && inp2);
+
+	}
+	else if (0 == strcmp(gates_p->gate_type,"OR")){
+	
+		return ( inp1 || inp2);
+	}
+	else if (0 == strcmp(gates_p->gate_type,"NOT")){
+		
+		if (inp1 == 1){
+			return 0;
+		}
+		else if (inp1 == 0){
+			return 1;
+		}
+	}
+	else if (0 == strcmp(gates_p->gate_type,"FLIPFLOP")){
+		
+		if (inp1 == 0 && *keep_fomer_outp == 0 || inp1 == 1 && *keep_fomer_outp == 1){
+
+			*keep_fomer_outp = 0;
+			gates_p->former_out = 0;		
+			return 0;
+		}
+		else if (inp1 == 0 && *keep_fomer_outp == 1 || inp1 == 1 && *keep_fomer_outp == 0){
+
+			*keep_fomer_outp = 1; 
+			gates_p->former_out = 1;
+			return 1;
+		}
+	}
+}
