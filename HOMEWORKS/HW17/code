@@ -1,0 +1,487 @@
+#include<stdio.h>
+#include<string.h>
+#include <stdlib.h>
+#define MAX_LENGHT 101//defined size of arrays used down
+double pars_object(char main_ob[MAX_LENGHT],char node_p[MAX_LENGHT],char test[MAX_LENGHT],int *node_count);//function takes desired arguments and parses the the entry recursivly.
+void portion_lent(char *ident_arr_p,int *lenght);//function takes a string and sends the lenght of one word or one node of it untill it finds eigther null or a space.it is used to pars the entry in the pars_object function
+void count_of_enitities(char *string,int *counter);//function takes a strings and send the number of entities inside string according to the white spaces beetwen.
+void ignore_spaces(char *original_arr,char *new_arr);//function takes  two one dimentional array and ignores the white spaces bettween each entity and minimized to one space and assigs it to second argument of it
+
+int main(){
+	
+	char object[MAX_LENGHT];//will hold the very first object names.
+	char node_p[MAX_LENGHT];node_p[0] ='\0';//declaring and initializing it to null so that to be used in function calls
+	char test[MAX_LENGHT];test[0] = '\0';//declaring and initializing it to null so that to be used in function calls
+	char *first_name = malloc(sizeof(char*));// allocating spaces for char pointer.
+	double total;//used to print the final value
+	int node_count = 0,first_lenght = 0;//used in function call as indicator of the number encountered in pars_object function .
+	
+	printf("> Name the object:\n> ");
+	
+	fgets(object,MAX_LENGHT,stdin);
+	strcpy(first_name,object);  	
+
+   	total = pars_object(object,node_p,test,&node_count);
+    first_lenght  = strlen(first_name);
+    first_name[first_lenght-1] = '\0';
+   	printf("> Total Cost of %s is %lf",first_name,total);
+	free(first_name);
+	return 0;
+}
+double pars_object(char main_ob[MAX_LENGHT],char node_p[MAX_LENGHT],char test[MAX_LENGHT],int *node_count){
+
+	int counter = 0,i = 0,j = 0,lenght = 0,temp_counter =1,lent= 0,main_lenght = 0;//all used variables 
+	double total = 0.00,sum = 0.00;
+	char ignored_spaces_node[MAX_LENGHT];ignored_spaces_node[0] = '\0';//this func used to store the new  array after minimzed spaces to one 
+
+	if (node_p[0] == '\0'){//used to print the object in the very first call
+		
+		main_lenght = strlen(main_ob);
+		main_ob[main_lenght-1] = '\0';
+
+		printf("> Define %s?:\n> ",main_ob);
+	}
+	else if (*node_count == 0){// node_count = 0 means i have found a num in the prevoius call of func itseld so it should print this message
+	
+		main_lenght = strlen(test);
+		test[main_lenght] = '\0';//we put null for minuc one because when we use fgets to take this string it also includes newliine char to avoid that while printign we use this.
+		main_lenght = 0;
+
+		printf("> Define %s in %s?:\n> ",main_ob,test );
+	}
+	else if (*node_count == 1){//reverse of node_count = 0.
+		
+		main_lenght = strlen(node_p);	
+		node_p[main_lenght] = '\0';
+		
+		printf("> Define %s in %s?:\n> ",main_ob,node_p);
+	}
+
+	fgets(node_p,MAX_LENGHT,stdin);
+
+	count_of_enitities(node_p,&counter);//used determine the count of entity in the entered array of string 
+
+	if (counter !=1){//if count is not 1 means we only need to enter  into statement when we have morethan one entity atleast a pair entered.
+		
+		counter = 0;
+
+		ignore_spaces(node_p,ignored_spaces_node);//function call
+		
+		lent = strlen(ignored_spaces_node);//lenght of ignored spaces array.
+		ignored_spaces_node[lent] = '\0';//put null to the end of array.
+		
+		count_of_enitities(ignored_spaces_node,&counter);//call count of entities function ot determine the number of enitites so that we  will perform according ti that size .
+		strcpy(node_p,ignored_spaces_node);//coping string.
+	}
+	if(counter == 1){//if we have only a number entered 
+
+		
+		sscanf(node_p,"%lf",&total);
+		
+		*node_count = 0;//set it to zero to endicate that i have found only a num so that will be used in the next iteration recutsive call.
+		return total;//return value.
+	}
+	else{
+
+		double num_arr[counter/2];//will hold the numbere
+		int k = 0;
+		char *nodes[MAX_LENGHT];//will hold each word parsed in it's each cell.
+		
+		while(k < counter/2){
+
+			nodes[k] = (char*)malloc(sizeof(char*));
+
+			k++;
+		}
+		*node_count = 1;
+
+		while(temp_counter <= counter)//parsing 
+		{
+
+			if (temp_counter % 2 == 1){//parses the numbers
+				
+				sscanf(node_p,"%lf",&num_arr[i]);				
+				portion_lent(node_p,&lenght);
+								
+				node_p =(node_p+lenght+1);
+				temp_counter++;i++;
+
+			}
+			else if(temp_counter % 2 !=1){//parses the words part
+
+				lenght--;
+				
+				sscanf((node_p+lenght-1),"%s",nodes[j]);
+				portion_lent(node_p+lenght,&lenght);
+				
+				node_p = node_p+lenght+1;
+				temp_counter++;j++;
+			}
+		}
+
+		i = 0;
+		char test[MAX_LENGHT];//used to prent properly and ask the used correct propmpts in the next call of recursive.
+		strcpy(test,main_ob);
+		
+		while(i < counter/2){//calling function 
+		
+			total = pars_object(nodes[i],main_ob,test,node_count) * num_arr[i];
+
+			sum = sum + total;
+			i++;
+		}
+		return sum;
+	}
+
+}
+void portion_lent(char *ident_arr_p,int *lenght){//finds the lenght untill encounters white spaces.
+
+	int i = 1;
+	
+	while(ident_arr_p[i]!=' ' &&ident_arr_p[i]!='\0'){
+		
+		i++;
+	}
+	
+	*lenght = i;
+}
+void count_of_enitities(char *string,int *counter){//func's taks described in up
+
+	int i = 0;
+
+	while(string[i]!='\0'){
+
+		if (string[i]==' '){
+			
+			*counter = *counter+1;
+		}
+	i++;
+	}
+	*counter = *counter+1;
+}
+void ignore_spaces(char *original_arr,char new_arr[MAX_LENGHT]){//func's taks described in up
+
+	int i = 0,j = 0;
+	int counter = 0;
+	
+	while(original_arr[i]!='\0'){
+
+		if (original_arr[i]!=' ' || counter == 0){
+			
+			new_arr[j] = original_arr[i];
+
+			if(original_arr[i]==' ' && original_arr[i+1]==' ' && counter == 0){
+				
+				counter = 1;
+			}
+			else{
+				
+				counter = 0;
+			}
+		j++;
+		
+		}
+	i++;
+	
+	}
+	
+	new_arr[j] = '\0';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*void ignore_arr_spaces(char *actual_arr,char *space_ignored){//ignores the white spaces
+
+	if(actual_arr[0]=='\0'){
+		
+		return;
+	}
+	else{
+
+		if(actual_arr[0] == ' ' && counter < 2){
+			
+			counter++;
+			ignore_arr_spaces(actual_arr+1,space_ignored+1);
+		}
+		else{
+			counter = 0;
+			strcpy(&space_ignored[0],&actual_arr[0]);
+			ignore_arr_spaces(actual_arr+1,space_ignored+1);
+		
+		}
+	}
+	return;
+}*/
+
